@@ -52,6 +52,7 @@ class Payments(models.Model):
     type_metod = models.CharField(choices=(('Course', 'Курс'), ('Lesson', 'Урок')), verbose_name='оплаченный курс или урок')
     sum_pay = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='сумма оплаты')
     payment_method = models.CharField(choices=(('Cash', 'Наличные '), ('Account_transfer', 'Перевод на счет')), verbose_name='наличные или перевод на счет')
+    payment_stripe_id = models.CharField(max_length=255,verbose_name='id платежа на stripe', **NULLABLE)
 
     def __str__(self):
         return f'{self.user}:{self.date_pay} на сумму{self.sum_pay}'
