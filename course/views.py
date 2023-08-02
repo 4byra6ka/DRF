@@ -7,6 +7,7 @@ from course.models import Course, Lesson, Payments, Subscription
 from course.paginators import CoursePaginator
 from course.permissions import IsModerator, IsCustomPermission, IsOwner
 from course.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, SubscriptionSerializer
+from course.tasks import send_course_update
 
 
 class CourseViewSet(ModelViewSet):
@@ -36,12 +37,25 @@ class LessonCreateAPIView(CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, ~IsModerator]
 
+    def perform_create(self, serializer):
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        new_lesson.save()
+        if new_lesson:
+            send_course_update.delay(new_lesson.course.id)
+
 
 class LessonUpdateAPIView(UpdateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
+    def perform_update(self, serializer):
+        new_lesson = serializer.save()
+        new_lesson.owner = self.request.user
+        new_lesson.save()
+        if new_lesson:
+            send_course_update.delay(new_lesson.course.id)
 
 class LessonDestroyAPIView(DestroyAPIView):
     queryset = Lesson.objects.all()

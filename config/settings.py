@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-@(+01unlgeci@@1-$b6f-+j95y(@5hwxhm9vq(7xiz4s-mu-^s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -89,6 +89,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'course',
         'USER': 'postgres',
+        # 'HOST': '127.0.0.1',
+        'HOST': '10.2.3.15',
     }
 }
 
@@ -151,3 +153,23 @@ SIMPLE_JWT = {
 }
 
 STRIPE_API_KEY = str(os.getenv('STRIPE_API_KEY'))
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = str(os.getenv('EMAIL_USER'))
+EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_PASSWORD'))
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+
+CELERY_BEAT_SCHEDULE = {
+    'block_in_active_users': {
+        'task': 'users.tasks.block_in_active_users',
+        'schedule': timedelta(minutes=1),
+    },
+}
